@@ -103,19 +103,19 @@ const NewsTimeline = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen bg-black text-white overflow-hidden"
+      className="relative  z-0 w-full h-10vh md:h-screen bg-black text-white overflow-hidden"
     >
       
       {/* Header - positioned differently for mobile */}
-      <div className={`absolute z-10 ${isMobile ? 'top-6 left-6' : 'top-12 left-12'}`} id="news">
+      <div className="flex flex-col items-center justify-center w-full text-center" id="news">
         <h2 className={`font-bold text-center mb-2 ${isMobile ? 'text-2xl pt-4' : 'text-4xl pt-20'}`}>News & <span className="text-cyan-400">Insights</span></h2>
-        <p className="text-sm text-gray-300">
+        <p className="text-sm w-full text-center text-gray-300">
           Combating Misinformation with Technology
         </p>
       </div>
 
       {isMobile ? (
-        <div className="flex flex-col items-center px-4 pt-50 mb-20 space-y-6 min-h-screen">
+        <div className="flex flex-col items-center px-4 pt-10 pb-10 space-y-6 ">
           {/* Current News Card */}
           <div className="w-full max-w-sm bg-cyan-400 text-black rounded-2xl p-5 shadow-xl">
             <div className="w-4 h-4 bg-white border-4 border-cyan-700 rounded-full mb-4"></div>

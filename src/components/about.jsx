@@ -211,7 +211,7 @@ const AboutUsSection = () => {
   );
 
   return (
-    <div ref={sectionRef} className="bg-gradient-to-b from-black to-[#0F1419] text-white font-sans relative overflow-hidden" id="about">
+    <div ref={sectionRef} className="bg-black text-white font-sans relative overflow-hidden" id="about">
       {/* Hero Section - Redesigned */}
       <section ref={heroRef} className="min-h-screen flex items-center justify-center relative z-10 pt-24">
         {/* Animated background overlay */}
@@ -293,12 +293,13 @@ const AboutUsSection = () => {
             </div>
           </div>
           <div className="relative">
-            <div className="w-80 h-80 mx-auto relative">
+            <div className="w-80 h-80 mx-auto relative animate-spin-x">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00D1FF]/30 to-transparent rounded-full animate-pulse"></div>
               <div className="absolute inset-4 bg-gradient-to-br from-[#1E2A38] to-[#2A3441] rounded-full border border-[#00D1FF]/40"></div>
               <div className="absolute inset-8 bg-gradient-to-br from-[#00D1FF]/10 to-transparent rounded-full"></div>
             </div>
           </div>
+
         </div>
       </section>
 

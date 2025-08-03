@@ -1,6 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronRight, HelpCircle, Video, FileCheck, Shield, Users, Target } from 'lucide-react';
 
+// Hook to check if we're on mobile
+function useIsMobile(breakpoint = 1024) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => setIsMobile(window.innerWidth < breakpoint);
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
+
 const DynamicFAQ = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -150,6 +165,8 @@ const DynamicFAQ = () => {
   };
 
   const currentItem = faqData[activeIndex];
+  const isMobile = useIsMobile(); // ADD THIS LINE
+
 
   return (
     <div className="min-h-screen bg-black text-gray-200 relative overflow-hidden">
@@ -157,25 +174,35 @@ const DynamicFAQ = () => {
       <div className="absolute inset-0 z-0">
         <div
           className="absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: 'url(https://www.transparenttextures.com/patterns/binary-code.png)' }}
+          style={{
+            backgroundImage:
+              "url(https://www.transparenttextures.com/patterns/binary-code.png)",
+          }}
         ></div>
         <div className="scanline"></div>
         <div className="absolute inset-0 opacity-10">
-          <div className="w-full h-full" style={{
-            backgroundImage: `
-              linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px'
-          }}></div>
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: "50px 50px",
+            }}
+          ></div>
         </div>
       </div>
 
-      <div className="relative z-10 flex min-h-screen">
-        {/* Left Panel - FAQ List */}
-        <div ref={leftPanelRef} className="w-2/5 p-8 border-r border-cyan-500/30 bg-black/30 backdrop-blur-sm">
-          <div className="mb-12">
-            <h1 className="text-4xl font-black text-cyan-400 mb-2">
+      {/* Content Container */}
+      <div className="relative z-10 flex flex-col lg:flex-row min-h-screen">
+        {/* Left Panel */}
+        <div
+          ref={leftPanelRef}
+          className="w-full lg:w-2/5 p-4 sm:p-8 border-b lg:border-b-0 lg:border-r border-cyan-500/30 bg-black/30 backdrop-blur-sm"
+        >
+          <div className="mb-8">
+            <h1 className="text-3xl sm:text-4xl font-black text-cyan-400 mb-2">
               FREQUENTLY ASKED QUESTIONS
             </h1>
             <div className="text-cyan-300/60 font-mono text-sm">
@@ -185,99 +212,130 @@ const DynamicFAQ = () => {
 
           <div className="space-y-4">
             {faqData.map((item, index) => {
-              const Icon = item.icon;
-              const isActive = index === activeIndex;
+  const Icon = item.icon;
+  const isActive = index === activeIndex;
 
-              return (
-                <div
-                  key={item.id}
-                  ref={el => itemsRef.current[index] = el}
-                  onClick={() => handleItemClick(index)}
-                  className={`
-                    group cursor-pointer p-6 rounded-lg border transition-all duration-300
-                    ${isActive
-                      ? 'bg-cyan-900/50 border-cyan-400 shadow-lg shadow-cyan-400/20'
-                      : 'bg-gray-900/30 border-gray-700 hover:border-cyan-500/50 hover:bg-gray-800/50'
-                    }
-                  `}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className={`
-                      w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
-                      ${isActive ? 'bg-cyan-400/20 text-cyan-300' : 'bg-gray-700/50 text-gray-400 group-hover:bg-cyan-400/10 group-hover:text-cyan-400'}
-                    `}>
-                      <Icon className="w-6 h-6" />
-                    </div>
+  return (
+    <div key={item.id} className="relative">
+      {/* FAQ Tile */}
+      <div
+        ref={el => itemsRef.current[index] = el}
+        onClick={() => handleItemClick(index)}
+        className={`
+          group cursor-pointer p-6 rounded-lg border transition-all duration-300
+          ${isActive
+            ? 'bg-cyan-900/50 border-cyan-400 shadow-lg shadow-cyan-400/20'
+            : 'bg-gray-900/30 border-gray-700 hover:border-cyan-500/50 hover:bg-gray-800/50'
+          }
+        `}
+      >
+        <div className="flex items-center space-x-4">
+          <div className={`
+            w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
+            ${isActive ? 'bg-cyan-400/20 text-cyan-300' : 'bg-gray-700/50 text-gray-400 group-hover:bg-cyan-400/10 group-hover:text-cyan-400'}
+          `}>
+            <Icon className="w-6 h-6" />
+          </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className={`
-                        font-bold text-lg truncate transition-colors duration-300
-                        ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}
-                      `}>
-                        {item.title}
-                      </h3>
+          <div className="flex-1 min-w-0">
+            <h3 className={`
+              font-bold text-lg truncate transition-colors duration-300
+              ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}
+            `}>
+              {item.title}
+            </h3>
 
-                      <p className={`
-                        text-sm truncate transition-colors duration-300
-                        ${isActive ? 'text-cyan-200' : 'text-gray-500 group-hover:text-gray-400'}
-                      `}>
-                        {item.subtitle}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            <p className={`
+              text-sm truncate transition-colors duration-300
+              ${isActive ? 'text-cyan-200' : 'text-gray-500 group-hover:text-gray-400'}
+            `}>
+              {item.subtitle}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* MOBILE DROPDOWN (only when active) */}
+      {isMobile && isActive && (
+        <div className="mt-4 bg-black/30 backdrop-blur border border-cyan-400/20 p-4 rounded-xl">
+          <h3 className="text-cyan-400 font-bold mb-2 text-md uppercase">Answer</h3>
+          <p className="text-gray-300 text-sm leading-relaxed">{item.content.description}</p>
+
+          <h3 className="text-cyan-400 font-bold mt-4 mb-2 text-md uppercase">Key Points</h3>
+          <ul className="list-disc ml-5 text-gray-200 text-sm space-y-1">
+            {item.content.keyPoints.map((point, i) => (
+              <li key={i}>{point}</li>
+            ))}
+          </ul>
+
+          <button className="mt-4 px-4 py-2 rounded bg-cyan-600 text-white text-sm font-semibold hover:scale-105 transition">
+            Contact Support →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+})}
+
           </div>
         </div>
 
-        {/* Right Panel - Dynamic Content */}
-        <div ref={rightPanelRef} className="flex-1 p-8 bg-black/10">
+        {/* Right Panel */}
+        <div ref={rightPanelRef} className="flex-1 hidden lg:block p-4 sm:p-8 bg-black/10">
           <div ref={contentRef} className="h-full">
-            <div className="mb-8">
-              <div className="flex items-center space-x-4 mb-6">
-                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${currentItem.content.color} flex items-center justify-center`}>
-                  <currentItem.icon className="w-8 h-8 text-white" />
+            <div className="mb-6 sm:mb-8">
+              <div className="flex items-center space-x-4 mb-4 sm:mb-6">
+                <div
+                  className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br ${currentItem.content.color} flex items-center justify-center`}
+                >
+                  <currentItem.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black text-white mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2">
                     {currentItem.title}
                   </h2>
-                  <span className="text-cyan-400 font-mono text-sm">
+                  <span className="text-cyan-400 font-mono text-xs sm:text-sm">
                     {currentItem.subtitle}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div>
-                <h3 className="text-cyan-400 font-bold mb-4 text-lg uppercase tracking-wider">Answer</h3>
-                <p className="text-gray-300 leading-relaxed text-lg">
+                <h3 className="text-cyan-400 font-bold mb-2 sm:mb-4 text-sm sm:text-lg uppercase tracking-wider">
+                  Answer
+                </h3>
+                <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
                   {currentItem.content.description}
                 </p>
               </div>
 
               <div>
-                <h3 className="text-cyan-400 font-bold mb-4 text-lg uppercase tracking-wider">Key Points</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <h3 className="text-cyan-400 font-bold mb-2 sm:mb-4 text-sm sm:text-lg uppercase tracking-wider">
+                  Key Points
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {currentItem.content.keyPoints.map((point, index) => (
-                    <div key={index} className="bg-gray-900/50 border border-gray-700/50 rounded-lg p-4">
+                    <div
+                      key={index}
+                      className="bg-gray-900/50 border border-gray-700/50 rounded-lg p-3 sm:p-4"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-cyan-400 rounded-full flex-shrink-0"></div>
-                        <span className="text-white font-medium">{point}</span>
+                        <span className="text-white font-medium text-sm sm:text-base">
+                          {point}
+                        </span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="pt-8">
-                <button className={`
-                  px-8 py-3 rounded-lg font-bold text-white transition-all duration-300
-                  bg-gradient-to-r ${currentItem.content.color}
-                  hover:shadow-lg hover:shadow-cyan-500/20 hover:scale-105 transform
-                `}>
+              <div className="pt-6 sm:pt-8">
+                <button
+                  className={`px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-bold text-white transition-all duration-300 bg-gradient-to-r ${currentItem.content.color} hover:shadow-lg hover:shadow-cyan-500/20 hover:scale-105 transform`}
+                >
                   Contact Support →
                 </button>
               </div>
@@ -288,8 +346,12 @@ const DynamicFAQ = () => {
 
       <style jsx>{`
         @keyframes scan {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100vh); }
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(100vh);
+          }
         }
         .scanline {
           position: absolute;
@@ -297,7 +359,12 @@ const DynamicFAQ = () => {
           left: 0;
           width: 100%;
           height: 5px;
-          background: linear-gradient(to bottom, rgba(0, 255, 255, 0), rgba(0, 255, 255, 0.2), rgba(0, 255, 255, 0));
+          background: linear-gradient(
+            to bottom,
+            rgba(0, 255, 255, 0),
+            rgba(0, 255, 255, 0.2),
+            rgba(0, 255, 255, 0)
+          );
           animation: scan 6s linear infinite;
           opacity: 0.6;
           z-index: 1;

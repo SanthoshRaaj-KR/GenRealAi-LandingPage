@@ -213,20 +213,10 @@ const Processing = () => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{
-            background: `
-              radial-gradient(circle at top right, rgba(32, 58, 67, 0.8) 0%, transparent 25%),
-              radial-gradient(circle at bottom left, rgba(32, 58, 67, 0.8) 0%, transparent 17%),
-              linear-gradient(to bottom right, rgba(5, 6, 7, 0.9), rgba(8, 16, 21, 0.9), rgba(14, 28, 36, 0.9))
-            `,
             backdropFilter: 'blur(10px)',
           }}
         >
-          <button
-            onClick={() => setShowQuiz(false)}
-            className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors duration-200 z-10"
-          >
-            <FaTimes className="text-2xl" />
-          </button>
+          
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

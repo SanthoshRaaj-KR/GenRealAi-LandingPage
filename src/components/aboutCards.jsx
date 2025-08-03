@@ -7,6 +7,18 @@ const DeepfakeDetectionPlatform = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
 
+  const width = window.innerWidth;
+
+  let minHeight;
+
+  if (width < 640) { // sm
+    minHeight = '110vh';
+  } else if (width < 768) { // md
+    minHeight = '50vh';
+  } else { // lg and up
+    minHeight = '70vh';
+  }
+
   useEffect(() => {
     setIsLoaded(true);
   }, []);
@@ -63,7 +75,7 @@ const DeepfakeDetectionPlatform = () => {
   ];
 
   return (
-    <div className="relative min-h-[90vh] py-12 overflow-hidden bg-gradient-to-b from-[#0A0F1F] via-[#050A15] to-[#0A0F1F] transition-colors duration-1000" id="products">
+    <div className="relative min-h-[90vh] py-12 overflow-hidden bg-black transition-colors duration-1000" >
       {/* Header */}
       <div className={`relative z-20 pt-8 pb-12 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -74,15 +86,15 @@ const DeepfakeDetectionPlatform = () => {
               <span className="text-cyan-400">AI Plagiarism Prevention</span>
             </span>
           </h1>
-          <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+          <p id="products" className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
             Cutting-edge AI tools to identify manipulated media and detect AI-generated content — built for trust, transparency, and digital integrity.
           </p>
         </div>
       </div>
 
       {/* Services Grid */}
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div  className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div  className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {services.map((service, index) => {
             const Icon = service.icon;
             const isFlipped = flippedCards.has(index);
@@ -93,9 +105,8 @@ const DeepfakeDetectionPlatform = () => {
                 className={`group relative cursor-pointer ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                 style={{ 
                   transitionDelay: `${index * 300}ms`,
-                  perspective: '1200px',
-                  height: '70vh',
-                  minHeight: '500px'  
+                  height:`${minHeight}`,
+                  perspective: '1200px',  
                 }}
                 onClick={() => toggleCard(index)}
               >

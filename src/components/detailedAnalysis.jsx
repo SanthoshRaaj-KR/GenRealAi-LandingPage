@@ -34,7 +34,7 @@ export default function DetailedAnalysis() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="relative z-10 max-w-4xl mx-auto py-8"
+      className="h-screen overflow-y-auto relative z-10 max-w-4xl mx-auto py-8 px-4"
     >
       {/* Top Result Card */}
       <motion.div
@@ -69,7 +69,7 @@ export default function DetailedAnalysis() {
           Detailed Model Analysis
         </h2>
 
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[55vh] overflow-auto pr-2">
           {modelResults.map((model, index) => (
             <motion.div
               key={index}
@@ -155,3 +155,4 @@ export default function DetailedAnalysis() {
     </motion.div>
   );
 }
+  

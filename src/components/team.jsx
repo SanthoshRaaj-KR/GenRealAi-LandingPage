@@ -37,10 +37,10 @@ const Team = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-tr min-h-screen from-black to-cyan-950 text-white px-6 py-16" id="team">
+    <div className="bg-black text-white px-6 py-16" id="team">
       {/* Founders Section */}
       <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">Meet Our Founders</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Meet Our <span className="text-cyan-400">Founders</span></h2>
         <p className="text-sm md:text-base text-gray-300 max-w-2xl mx-auto mb-12">
           Born from a deep concern over the rise of synthetic media, our leadership combines cutting-edge innovation with a passion for truth.
         </p>

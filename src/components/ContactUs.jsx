@@ -60,7 +60,7 @@ const ContactForm = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0f1f] via-[#0b162c] to-[#050915] px-3 sm:px-4 md:px-8 py-4 sm:py-6 md:py-8 lg:py-12" id="contact-us">
+    <div className="min-h-screen bg-black px-3 sm:px-4 md:px-8 py-4 sm:py-6 md:py-8 lg:py-12" id="contact-us">
       {/* Glow Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 sm:-top-40 -right-20 sm:-right-40 w-40 h-40 sm:w-80 sm:h-80 bg-cyan-500/20 rounded-full blur-[80px] sm:blur-[160px]" />

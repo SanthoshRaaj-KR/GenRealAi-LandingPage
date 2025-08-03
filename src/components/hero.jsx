@@ -16,6 +16,7 @@ const HeroSection = ({ Loaded, onFaceModelLoaded }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   // ... (all existing useEffects and other hooks remain the same) ...
+  
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
