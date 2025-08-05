@@ -84,7 +84,7 @@ const NewsTimeline = () => {
     const section = sectionRef.current;
     const horizontal = horizontalRef.current;
     if (!section || !horizontal) return;
-
+    gsap.set(section, { height: section.offsetHeight });
     const ctx = gsap.context(() => {
       gsap.to(horizontal, {
         x: () => `-${horizontal.scrollWidth - window.innerWidth}px`,
