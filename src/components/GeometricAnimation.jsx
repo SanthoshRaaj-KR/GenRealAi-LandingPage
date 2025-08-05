@@ -1,5 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 
+// A simple debounce function helper. It ensures a function doesn't run
+// until a certain amount of time has passed without it being called.
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(context, args), delay);
+  }
+};
+
 const GeometricAnimation = ({ paused }) => {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
@@ -10,12 +22,7 @@ const GeometricAnimation = ({ paused }) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      createParticles();
-    };
-
+    // This function recreates all particles. It's expensive to run repeatedly.
     const createParticles = () => {
       const area = window.innerWidth * window.innerHeight;
       const count = area < 500000 ? 80 : 150;
@@ -32,6 +39,16 @@ const GeometricAnimation = ({ paused }) => {
         shape: Math.random() < 0.1 ? 'triangle' : (Math.random() < 0.2 ? 'square' : 'circle')
       }));
     };
+    
+    // --- FIX: Debounce the expensive resize operation for performance ---
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      createParticles();
+    };
+    
+    // Create a debounced version that will only run 250ms after the user stops resizing.
+    const debouncedResize = debounce(handleResize, 250);
 
     const drawShape = (ctx, x, y, size, type = 'circle') => {
       ctx.beginPath();
@@ -49,7 +66,11 @@ const GeometricAnimation = ({ paused }) => {
     };
 
     const animate = (time) => {
-      if (paused) return;
+      // The `paused` prop effectively stops the animation loop.
+      if (paused) {
+        animationIdRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
       ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -90,15 +111,15 @@ const GeometricAnimation = ({ paused }) => {
       animationIdRef.current = requestAnimationFrame(animate);
     };
 
-    resize();
-    window.addEventListener('resize', resize);
+    handleResize(); // Call once initially to set up the canvas
+    window.addEventListener('resize', debouncedResize); // Use the debounced version for the listener
     animationIdRef.current = requestAnimationFrame(animate);
 
     return () => {
       cancelAnimationFrame(animationIdRef.current);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', debouncedResize); // Clean up the debounced listener
     };
-  }, [paused]);
+  }, [paused]); // The dependency is correct
 
   return (
     <canvas

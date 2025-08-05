@@ -1,106 +1,113 @@
-// FaceModel.jsx
 import React, { Suspense, useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-const Face = ({ paused, isVisible, disableTracking, onModelLoaded }) => {
+// A simple debounce function helper
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(context, args), delay);
+  }
+};
+
+const Face = ({ isParentInView, paused, disableTracking, onModelLoaded }) => {
   const { scene } = useGLTF('/RoboFace/scene.gltf');
   const groupRef = useRef();
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState({ x: 1.5, y: 1.2, z: 1.2 });
-  const wireframesRef = useRef([]);
-  const sharedWireMaterial = useRef(null);
-  const [modelReady, setModelReady] = useState(false);
+  
+  // FIX 1: Use a ref to ensure the onModelLoaded callback is only fired once.
+  const hasCalledLoaded = useRef(false);
 
+  // --- HOOKS REFACTORED FOR STABILITY AND SEPARATION OF CONCERNS ---
+
+  // Effect for calling the loaded callback ONCE when visible.
   useEffect(() => {
-    if (!sharedWireMaterial.current) {
-      sharedWireMaterial.current = new THREE.MeshBasicMaterial({
-        color: 'grey',
-        wireframe: true,
-        transparent: true,
-        opacity: 0.8,
-        side: THREE.DoubleSide
-      });
-    }
-
-    return () => {
-      if (sharedWireMaterial.current) {
-        sharedWireMaterial.current.dispose();
-        sharedWireMaterial.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isVisible) return;
-
-    scene.scale.set(scale.x, scale.y, scale.z);
-    scene.rotation.set(0, 0, 0);
-
-    wireframesRef.current.forEach((mesh) => {
-      if (mesh.parent) mesh.parent.remove(mesh);
-    });
-    wireframesRef.current = [];
-
-    const addedWireframes = [];
-
-    scene.traverse((child) => {
-      if (child.isMesh && child.geometry && !child.userData.hasWireframe) {
-        const wireframeMesh = new THREE.Mesh(child.geometry, sharedWireMaterial.current);
-        wireframeMesh.position.copy(child.position);
-        wireframeMesh.rotation.copy(child.rotation);
-        wireframeMesh.scale.copy(child.scale);
-
-        if (child.parent) {
-          child.parent.add(wireframeMesh);
-          addedWireframes.push(wireframeMesh);
-          child.userData.hasWireframe = true;
-        }
-      }
-    });
-
-    wireframesRef.current = addedWireframes;
-
-    if (!modelReady) {
-      setModelReady(true);
+    if (isParentInView && !hasCalledLoaded.current) {
       if (onModelLoaded) {
         onModelLoaded();
       }
+      hasCalledLoaded.current = true;
     }
+  }, [isParentInView, onModelLoaded]);
 
+  // Effect for handling responsive scaling (debounced for performance).
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      let newScale, newY;
+      if (width < 480) {
+        newScale = { x: 0.95, y: 0.8, z: 1 }; newY = -0.85;
+      } else if (width < 768) {
+        newScale = { x: 1, y: 0.8, z: 1 }; newY = -0.9;
+      } else if (width < 1024) {
+        newScale = { x: 1.3, y: 1, z: 1 }; newY = -1.4;
+      } else {
+        newScale = { x: 1.45, y: 1.15, z: 1.1 }; newY = -1.6;
+      }
+      setScale(newScale);
+      scene.position.y = newY;
+    };
+
+    const debouncedResize = debounce(handleResize, 250);
+    handleResize(); // Initial call
+    window.addEventListener('resize', debouncedResize);
+    return () => window.removeEventListener('resize', debouncedResize);
+  }, [scene]);
+  
+  // Effect for applying scale to the scene when the scale state changes.
+  useEffect(() => {
+    scene.scale.set(scale.x, scale.y, scale.z);
+  }, [scale, scene]);
+  
+  // Effect for safely adding and removing the wireframe overlay.
+  useEffect(() => {
+    if (!isParentInView) return; // Do nothing if not visible
+
+    const wireframeMaterial = new THREE.MeshBasicMaterial({
+      color: 'grey',
+      wireframe: true,
+      transparent: true,
+      opacity: 0.8,
+      side: THREE.DoubleSide
+    });
+    
+    const wireframeMeshes = [];
+    scene.traverse((child) => {
+      if (child.isMesh && child.geometry) {
+        const wireframeMesh = new THREE.Mesh(child.geometry, wireframeMaterial);
+        wireframeMesh.position.copy(child.position);
+        wireframeMesh.rotation.copy(child.rotation);
+        wireframeMesh.scale.copy(child.scale);
+        if (child.parent) {
+          child.parent.add(wireframeMesh);
+          wireframeMeshes.push(wireframeMesh);
+        }
+      }
+    });
+
+    // Cleanup function to run when component unmounts or isParentInView changes
     return () => {
-      // Remove wireframes
-      wireframesRef.current.forEach((mesh) => {
-        if (mesh.parent) mesh.parent.remove(mesh);
-      });
-      wireframesRef.current = [];
-
-      scene.traverse((child) => {
-        if (child.isMesh) {
-          child.userData.hasWireframe = false;
-
-          if (child.geometry) {
-            child.geometry.dispose();
-          }
-          if (Array.isArray(child.material)) {
-            child.material.forEach((mat) => mat.dispose && mat.dispose());
-          } else if (child.material) {
-            child.material.dispose();
-          }
-
-          // Optional: dispose textures if present
-          if (child.material?.map) {
-            child.material.map.dispose();
-          }
+      wireframeMeshes.forEach(mesh => {
+        if (mesh.parent) {
+          mesh.parent.remove(mesh);
         }
       });
+      wireframeMaterial.dispose();
     };
-  }, [scene, scale, isVisible, modelReady, onModelLoaded]);
+  }, [scene, isParentInView]); // Re-run only when the scene is available or visibility changes
 
-  // 🔥 Mouse tracking – only if visible and not disabled
+  // Effect for mouse tracking.
   useEffect(() => {
-    if (!isVisible || disableTracking) return;
+    if (!isParentInView || disableTracking) {
+      // Reset mouse position when tracking is disabled
+      setMouse({ x: 0, y: 0 });
+      return;
+    };
 
     const handleMouseMove = (event) => {
       const x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -110,69 +117,24 @@ const Face = ({ paused, isVisible, disableTracking, onModelLoaded }) => {
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isVisible, disableTracking]);
+  }, [isParentInView, disableTracking]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      let newScale, newY;
-
-      if (width < 480) {
-        newScale = { x: 0.95, y: 0.8, z: 1 };
-        newY = -0.85;
-      } else if (width < 768) {
-        newScale = { x: 1, y: 0.8, z: 1 };
-        newY = -0.9;
-      } else if (width < 1024) {
-        newScale = { x: 1.3, y: 1, z: 1 };
-        newY = -1.4;
-      } else {
-        newScale = { x: 1.45, y: 1.15, z: 1.1 };
-        newY = -1.6;
-      }
-
-      setScale(newScale);
-      scene.position.set(0, newY, 0);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [scene]);
-
+  // useFrame for animation, respects paused and visibility state.
   useFrame(() => {
-      if (paused || !groupRef.current || !isVisible) return;
-      groupRef.current.rotation.y += (mouse.x * 0.6 - groupRef.current.rotation.y) * 0.1;
-      groupRef.current.rotation.x += (mouse.y * 0.4 - groupRef.current.rotation.x) * 0.1;
-    });
+    if (paused || !groupRef.current) return;
+    // Smoothly animate rotation towards the mouse position
+    groupRef.current.rotation.y += (mouse.x * 0.6 - groupRef.current.rotation.y) * 0.1;
+    groupRef.current.rotation.x += (mouse.y * 0.4 - groupRef.current.rotation.x) * 0.1;
+  });
 
-    return <group ref={groupRef}><primitive object={scene} /></group>;
-  };
+  return <group ref={groupRef}><primitive object={scene} /></group>;
+};
 
+// The main FaceModel component is now much simpler.
+// It no longer manages its own visibility state.
 const FaceModel = ({ paused, disableTracking, onModelLoaded }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const canvasRef = useRef();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '50px'
-      }
-    );
-
-    if (canvasRef.current) observer.observe(canvasRef.current);
-    return () => {
-      if (canvasRef.current) observer.unobserve(canvasRef.current);
-    };
-  }, []);
-
   return (
     <Canvas
-      ref={canvasRef}
       dpr={[1, 1.5]}
       className="absolute inset-0 pointer-events-none z-20"
       camera={{ position: [0, 0, 5], fov: 35 }}
@@ -181,14 +143,15 @@ const FaceModel = ({ paused, disableTracking, onModelLoaded }) => {
       <ambientLight intensity={1} />
       <directionalLight position={[2, 2, 5]} intensity={1.2} />
       <Suspense fallback={null}>
-        {isVisible && (
-          <Face 
-            paused={paused} 
-            isVisible={isVisible} 
-            disableTracking={disableTracking}
-            onModelLoaded={onModelLoaded}
-          />
-        )}
+        {/* The Face component is always mounted for stability. 
+          Its internal animations are controlled by the `paused` prop.
+        */}
+        <Face 
+          isParentInView={!paused} 
+          paused={paused}
+          disableTracking={disableTracking}
+          onModelLoaded={onModelLoaded}
+        />
       </Suspense>
     </Canvas>
   );
