@@ -7,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 const AboutUsSection = () => {
   const sectionRef = useRef(null);
-  const heroRef = useRef(null);
+  const heroRef = useRef(null); // Ref for the entire first section
   const deepfakeRef = useRef(null);
   const plagiarismRef = useRef(null);
   const floatingElementsRef = useRef([]);
@@ -17,6 +17,8 @@ const AboutUsSection = () => {
 
   useEffect(() => {
     const createFloatingElements = () => {
+      // This function remains the same
+      if (!sectionRef.current) return;
       for (let i = 0; i < 20; i++) {
         const element = document.createElement('div');
         element.className = 'floating-element';
@@ -38,6 +40,8 @@ const AboutUsSection = () => {
     };
 
     const createParticles = () => {
+      // This function remains the same
+      if (!sectionRef.current) return;
       for (let i = 0; i < 50; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
@@ -61,6 +65,7 @@ const AboutUsSection = () => {
     createParticles();
 
     const ctx = gsap.context(() => {
+      // Background particle animations remain the same
       particlesRef.current.forEach((particle) => {
         gsap.to(particle, {
           y: -window.innerHeight - 100,
@@ -69,7 +74,6 @@ const AboutUsSection = () => {
           delay: Math.random() * 5,
           ease: "none"
         });
-        
         gsap.to(particle, {
           x: `+=${Math.random() * 200 - 100}`,
           duration: Math.random() * 8 + 6,
@@ -91,31 +95,28 @@ const AboutUsSection = () => {
         });
       });
 
-      // Hero section animations
-      gsap.fromTo(heroRef.current.querySelector('.hero-title'),
-        { opacity: 0, y: 80, scale: 0.9 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 2,
-          ease: "power3.out",
-          delay: 0.3
-        }
-      );
+      // This animates the entire first section on scroll
+// This animates the entire first section on scroll
+if (heroRef.current) {
+  // We use .fromTo() to define the start and end states for scrubbing
+  gsap.fromTo(heroRef.current, 
+    { opacity: 0, y: 100 }, // FROM this state
+    {
+      opacity: 1,
+      y: 0,
+      ease: "none", // Use "none" for a linear scrub
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top 50%",   // When the top of the element is 80% down the viewport
+        end: "bottom 80%", // When the bottom of the element is 90% down the viewport
+        scrub: 1,           // KEY CHANGE: Links animation to scroll. The '1' adds a 1-second smoothing effect.
+        invalidateOnRefresh: true
+      }
+    }
+  );
+}
 
-      gsap.fromTo(heroRef.current.querySelector('.hero-description'),
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.5,
-          ease: "power2.out",
-          delay: 1.2
-        }
-      );
-
-      // Deepfake section - slide in from left with morphing effect
+      // Deepfake section - NO CHANGES
       const deepfakeTl = gsap.timeline({
         scrollTrigger: {
           trigger: deepfakeRef.current,
@@ -124,13 +125,11 @@ const AboutUsSection = () => {
           scrub: 1.3,
         }
       });
-      
-      deepfakeTl
-        .fromTo(deepfakeRef.current.querySelector('.content-wrapper'),
-          { x: -200, opacity: 0, scale: 0.8 },
-          { x: 0, opacity: 1, scale: 1 });
+      deepfakeTl.fromTo(deepfakeRef.current.querySelector('.content-wrapper'),
+        { x: -200, opacity: 0, scale: 0.8 },
+        { x: 0, opacity: 1, scale: 1 });
 
-      // Plagiarism section - slide in from right with wave effect
+      // Plagiarism section - NO CHANGES
       const plagiarismTl = gsap.timeline({
         scrollTrigger: {
           trigger: plagiarismRef.current,
@@ -139,36 +138,29 @@ const AboutUsSection = () => {
           scrub: 1.5,
         }
       });
-      
-      plagiarismTl
-        .fromTo(plagiarismRef.current.querySelector('.content-wrapper'),
-          { x: 200, opacity: 0, scale: 0.8 },
-          { x: 0, opacity: 1, scale: 1 });
+      plagiarismTl.fromTo(plagiarismRef.current.querySelector('.content-wrapper'),
+        { x: 200, opacity: 0, scale: 0.8 },
+        { x: 0, opacity: 1, scale: 1 });
 
+      // Motion path animations - NO CHANGES
       if (leftMotionRef.current) {
         gsap.to(leftMotionRef.current, {
           motionPath: {
-            path: [{x: 0, y: 0}, {x: -100, y: -200}, {x: 50, y: -400}, {x: -50, y: -600}, {x: 0, y: -800}],
+            path: [{x:0, y:0}, {x:-100, y:-200}, {x:50, y:-400}, {x:-50, y:-600}, {x:0, y:-800}],
             curviness: 2,
             autoRotate: true,
           },
-          duration: 15,
-          repeat: -1,
-          ease: "none"
+          duration: 15, repeat: -1, ease: "none"
         });
       }
-
       if (rightMotionRef.current) {
         gsap.to(rightMotionRef.current, {
           motionPath: {
-            path: [{x: 0, y: 0}, {x: 100, y: -150}, {x: -30, y: -350}, {x: 80, y: -550}, {x: 0, y: -750}],
+            path: [{x:0, y:0}, {x:100, y:-150}, {x:-30, y:-350}, {x:80, y:-550}, {x:0, y:-750}],
             curviness: 2,
             autoRotate: true,
           },
-          duration: 12,
-          repeat: -1,
-          ease: "none",
-          delay: 2
+          duration: 12, repeat: -1, ease: "none", delay: 2
         });
       }
 
@@ -212,28 +204,21 @@ const AboutUsSection = () => {
 
   return (
     <div ref={sectionRef} className="bg-black text-white font-sans relative overflow-hidden" id="about">
+      
       {/* Hero Section - Redesigned */}
-      <section ref={heroRef} className="min-h-screen flex items-center justify-center relative z-10 pt-24">
-        {/* Animated background overlay */}
+      <section ref={heroRef} className="min-h-screen flex items-center justify-center relative z-10 pt-24 opacity-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#00D1FF]/5 via-transparent to-[#1E40AF]/5 animate-pulse"></div>
-        
-        {/* Main content container */}
         <div className="container mx-auto px-6 lg:px-12 max-w-7xl relative z-20">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            
-            {/* Left side - Main content */}
             <div className="space-y-6">
               <h1 className="hero-title text-5xl lg:text-7xl font-extrabold mb-4 bg-gradient-to-r from-white via-cyan-400 to-white bg-clip-text text-transparent leading-tight">
                 Building a <br /> Safer Digital World
               </h1>
-              
               <div className="hero-description">
                 <p className="text-lg lg:text-xl leading-relaxed text-[#E6F3FF] font-medium">
                   At GenReal.ai, our mission is to empower you with the tools to **trust the content you see**. We provide advanced AI solutions for deepfake detection and plagiarism prevention, creating a **safer, more reliable digital environment** for everyone.
                 </p>
               </div>
-              
-              {/* Call to action buttons */}
               <div className="flex flex-wrap gap-4 mt-8">
                 <button className="bg-gradient-to-r from-[#00D1FF] to-[#0099CC] text-black font-bold px-8 py-4 rounded-full hover:shadow-lg hover:shadow-[#00D1FF]/30 transition-all duration-300 transform hover:scale-105">
                   Explore Solutions
@@ -243,22 +228,19 @@ const AboutUsSection = () => {
                 </button>
               </div>
             </div>
-            
-            {/* Right side - Video placeholder */}
-              <div className="relative flex justify-center lg:justify-end">
-                <div className="relative w-full max-w-xl h-[320px] sm:h-[400px] md:h-[480px] bg-gray-900 rounded-3xl overflow-hidden border-2 border-cyan-400/50 shadow-2xl shadow-cyan-500/20">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-gray-900/80 backdrop-blur-sm">
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2">How It Works: Watch the Demo</h3>
-                    <p className="text-sm md:text-base text-gray-400 mb-6">See how easy it is to upload your content and get instant results.</p>
-                    <button className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-3 rounded-full transition-colors duration-300">
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                      Play Video
-                    </button>
-                  </div>
-                  {/* Optional: Add a subtle overlay for visual flair */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400/10 to-transparent pointer-events-none"></div>
+            <div className="relative flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-xl h-[320px] sm:h-[400px] md:h-[480px] bg-gray-900 rounded-3xl overflow-hidden border-2 border-cyan-400/50 shadow-2xl shadow-cyan-500/20">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-gray-900/80 backdrop-blur-sm">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-2">How It Works: Watch the Demo</h3>
+                  <p className="text-sm md:text-base text-gray-400 mb-6">See how easy it is to upload your content and get instant results.</p>
+                  <button className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-3 rounded-full transition-colors duration-300">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    Play Video
+                  </button>
                 </div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400/10 to-transparent pointer-events-none"></div>
               </div>
+            </div>
           </div>
         </div>
       </section>
@@ -266,10 +248,7 @@ const AboutUsSection = () => {
       {/* Deepfake Detection Section - Diagonal Layout */}
       <section ref={deepfakeRef} className="min-h-screen flex items-center py-20 relative z-10">
         <div className="absolute inset-0 bg-gradient-to-r from-[#00D1FF]/5 to-transparent transform -skew-y-3"></div>
-        
-        {/* Left side motion path element */}
         <div ref={leftMotionRef} className="absolute left-10 top-1/2 w-8 h-8 bg-[#00D1FF] rounded-full opacity-60 shadow-lg shadow-[#00D1FF]/50 z-20"></div>
-        
         <div className="content-wrapper max-w-6xl mx-auto px-8 grid md:grid-cols-2 gap-12 items-center z-10">
           <div>
             <DetectionIcon />
@@ -277,7 +256,7 @@ const AboutUsSection = () => {
               Deepfake Detection
             </h2>
             <p className="text-lg md:text-xl text-[#C9D1D9] leading-relaxed mb-8">
-              Advanced AI-powered detection of manipulated visual and audio content. Our cutting-edge deep learning models 
+              Advanced AI-powered detection of manipulated visual and audio content. Our cutting-edge deep learning models
               identify deepfakes with unprecedented accuracy, protecting your platform from synthetic media threats in real-time.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -299,17 +278,13 @@ const AboutUsSection = () => {
               <div className="absolute inset-8 bg-gradient-to-br from-[#00D1FF]/10 to-transparent rounded-full"></div>
             </div>
           </div>
-
         </div>
       </section>
 
       {/* Plagiarism Detection Section - Wave Design */}
       <section ref={plagiarismRef} className="min-h-screen flex items-center py-20 relative z-10">
         <div className="wave-bg absolute inset-0 bg-gradient-to-l from-[#00D1FF]/5 to-transparent transform skew-y-3"></div>
-        
-        {/* Right side motion path element */}
         <div ref={rightMotionRef} className="absolute right-10 top-1/2 w-6 h-6 bg-gradient-to-r from-[#00D1FF] to-[#00A8CC] rounded-full opacity-70 shadow-lg shadow-[#00D1FF]/50 z-20"></div>
-        
         <div className="content-wrapper max-w-6xl mx-auto px-8 grid md:grid-cols-2 gap-12 items-center z-10">
           <div className="relative order-2 md:order-1">
             <div className="w-80 h-80 mx-auto relative">
@@ -324,7 +299,7 @@ const AboutUsSection = () => {
               Plagiarism Detection
             </h2>
             <p className="text-lg md:text-xl text-[#C9D1D9] leading-relaxed mb-8">
-              Comprehensive content verification and originality checking across multiple formats. Our intelligent system 
+              Comprehensive content verification and originality checking across multiple formats. Our intelligent system
               detects copied content, paraphrasing, and ensures academic and professional integrity with lightning-fast analysis.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -341,6 +316,7 @@ const AboutUsSection = () => {
           </div>
         </div>
       </section>
+      
     </div>
   );
 };
