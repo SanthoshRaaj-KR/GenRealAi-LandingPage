@@ -97,6 +97,7 @@ export default function AIPlagiarismChecker() {
                   className="w-full h-full min-h-[200px] bg-slate-700/30 backdrop-blur-sm border border-slate-600/40 rounded-xl p-4 text-white placeholder-slate-400 outline-none resize-none text-base md:text-sm leading-relaxed focus:border-cyan-400/60 transition-all duration-300 focus:bg-slate-700/40"
                   maxLength={5000}
                 />
+<<<<<<< HEAD
                 {!textInput.trim() && !isChecking && !hasResults && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="bg-slate-700/30 border border-slate-600/30 rounded-xl p-6">
@@ -123,6 +124,11 @@ export default function AIPlagiarismChecker() {
                     Reset
                   </button>
                 )}
+=======
+                <h1 className="text-3xl font-bold text-white">
+                Code <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Plagiarism</span> Checker
+                </h1>
+>>>>>>> 5688fdf91c730a9ef41f8bb0236eb2fce8804112
               </div>
             </div>
           </div>
