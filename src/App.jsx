@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Loader from './components/loader';
 import Hero from './components/hero';
 import About from './components/about';
-import Team from './components/team';
 import News from './components/news';
 import ContactUs from './components/ContactUs';
 import VideoCarousel  from "./components/videoCarousel"
