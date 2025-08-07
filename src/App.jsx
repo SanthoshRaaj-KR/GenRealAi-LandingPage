@@ -27,7 +27,6 @@ const Home = ({ isLoaded, onFaceModelLoaded }) => (
     <News id="news" />
     <FAQ id="faq" />
     <ContactUs id="contact-us" />
-    <Team id="team" />
     <Footer />
   </div>
 );

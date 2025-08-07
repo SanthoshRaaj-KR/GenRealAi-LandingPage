@@ -70,7 +70,7 @@ const HeroSection = ({ Loaded, onFaceModelLoaded }) => {
   }, []); // Note: dependency array is empty because lastScrollPos is a ref.
 
   useEffect(() => {
-    const sections = ['home', 'about', 'news', 'faq', 'team', 'contact-us'];
+    const sections = ['home', 'about', 'news', 'faq', 'contact-us'];
     const observers = sections.map(id => {
       const section = document.getElementById(id);
       if (!section) return null;
@@ -109,7 +109,6 @@ const HeroSection = ({ Loaded, onFaceModelLoaded }) => {
     { id: 'news', label: 'News' },
     { id: 'faq', label: 'FAQ' },
     { id: 'contact-us', label: 'Contact Us' },
-    { id: 'team', label: 'Team' },
   ];
 
   const getLinkClass = (id) =>
