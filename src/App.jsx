@@ -20,11 +20,6 @@ const Home = ({ isLoaded, onFaceModelLoaded }) => (
     <Hero Loaded={isLoaded} onFaceModelLoaded={onFaceModelLoaded} />
     <About id="about" />
     <DeepfakeDetectionPlatform />
-    <div className='w-[100%] hidden md:block h-screen'>
-      <div className='w-[60%] h-[50%] mx-auto'>
-        <VideoCarousel />
-      </div>
-    </div>
     <News id="news" />
     <FAQ id="faq" />
     <ContactUs id="contact-us" />
