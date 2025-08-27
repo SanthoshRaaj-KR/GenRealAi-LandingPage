@@ -13,6 +13,8 @@ import FAQ from './components/FAQ';
 import Upload from './components/Upload';
 import Plagiarism from "./components/Plagiarism-upload";
 import DeepfakeDetectionPlatform from "./components/aboutCards";
+import LoginWidget from "./components/loginWidget";
+
 
 const Home = ({ isLoaded, onFaceModelLoaded }) => (
   <div className='z-10' style={{ visibility: isLoaded ? 'visible' : 'hidden' }}>
@@ -44,8 +46,24 @@ const PageWrapper = ({ children }) => (
 
 const AppContent = () => {
   const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoaded, setIsLoaded] = useState(location.pathname !== '/');
   const [faceModelLoaded, setFaceModelLoaded] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // or wherever you store it
+    if (token) setIsLoggedIn(true);
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("token", token);
+      setIsLoggedIn(true);
+      window.history.replaceState({}, "", "/"); // clean URL
+    }
+  }, []);
 
   const handleFaceModelLoaded = () => {
     setFaceModelLoaded(true);
@@ -103,6 +121,10 @@ const AppContent = () => {
           />
         </Routes>
       </AnimatePresence>
+
+      {isLoaded && ["/"].includes(location.pathname) && (
+        <LoginWidget isLoggedIn={isLoggedIn} />
+      )}
     </div>
   );
 };
